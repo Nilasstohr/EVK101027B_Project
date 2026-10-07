@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+    <range>CODE 0x08000000 0x0800FFFF</range>
+	<loader_offset> 0x20000000</loader_offset>
+    <loader>$TOOLKIT_DIR$\config\flashloader\ST\FlashSTM32H7R-Sxx8.flash</loader>
+  </pass>
+</flash_board>
+
+

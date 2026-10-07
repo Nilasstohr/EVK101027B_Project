@@ -1,0 +1,241 @@
+__var RCC_CR_RESTORE;
+__var RCC_CFGR_RESTORE;
+__var RCC_D1CFGR_RESTORE;
+__var RCC_CIER_RESTORE;
+__var FLASH_ACR_RESTORE;
+__var IWDG_PR_RESTORE;
+__var IWDG_RLR_RESTORE;
+__var IWDG_WINR_RESTORE;
+__var DBGMCU_APB3FZ1_RESTORE;
+__var DBGMCU_APB4FZ1_RESTORE;
+__var MPU_CTRL_RESTORE;
+
+execUserFlashInit()
+{
+__var FLASH_OPTSR_CUR;
+__var FLASH_OPTSR_PRG;
+__var FLASH_OPTCR;
+__var rcc_changed;
+
+  disable_wdts_in_debug();
+
+  FLASH_OPTSR_CUR = __readMemory32(0x5200201C, "Memory");
+  if ((0x0000FF00 & FLASH_OPTSR_CUR) != 0xAA00)
+  {
+
+    if (!__messageBoxYesCancel("Do you want to perform mass erase to unlock the device?", "Unlocking device"))
+    {
+      __abortLaunch("FL/MAC: Unlock cancelled. Debug session cannot continue.");
+    }
+
+    __writeMemory32(0x45670123, 0x52002004, "Memory"); // FLASH->FKEYR = FLASH_KEY1;
+    __writeMemory32(0xCDEF89AB, 0x52002004, "Memory"); // FLASH->FKEYR = FLASH_KEY2;
+
+    __writeMemory32(0x08192A3B, 0x52002008, "Memory"); // FLASH->OPTKEYR = FLASH_OPTKEY1;
+    __writeMemory32(0x4C5D6E7F, 0x52002008, "Memory"); // FLASH->OPTKEYR = FLASH_OPTKEY2;
+
+    __message "FL/MAC: Setting FLASH readout protection level 0 (disabled) ...";
+
+    FLASH_OPTSR_PRG = 0xFFFF00FF & FLASH_OPTSR_CUR;
+    FLASH_OPTSR_PRG |= 0xAA00;
+
+    __writeMemory32(FLASH_OPTSR_PRG, 0x52002020, "Memory"); // Set RDP bits
+
+     FLASH_OPTCR = __readMemory32(0x52002018, "Memory");
+    __writeMemory32(0x2 | FLASH_OPTCR, 0x52002018, "Memory"); // Set OPTSTRT
+
+   // Wait while FLASH is busy
+    do
+    {
+      __delay(100);
+      FLASH_OPTSR_CUR = __readMemory32(0x5200201C, "Memory");
+    }
+    while (0x1 & FLASH_OPTSR_CUR);
+  }
+
+  MPU_CTRL_RESTORE = __readMemory32(0xE000ED94, "Memory");
+  if (MPU_CTRL_RESTORE & 0x1)
+  {
+    // Disable MPU
+    __writeMemory32(0x00000000, 0xE000ED94, "Memory");
+  }
+
+  RCC_CR_RESTORE     = __readMemory32(0x58024400, "Memory");
+  RCC_CFGR_RESTORE   = __readMemory32(0x58024410, "Memory");
+  RCC_D1CFGR_RESTORE = __readMemory32(0x58024418, "Memory");
+  RCC_CIER_RESTORE   = __readMemory32(0x58024460, "Memory");
+
+  if (RCC_CIER_RESTORE != 0x0)
+  {
+    __writeMemory32(0x00000000, 0x58024460, "Memory"); // RCC_CIER
+    rcc_changed++;
+  }
+
+  if ((RCC_CR_RESTORE & 0x19) != 0x1)
+  {
+    __writeMemory32((RCC_CR_RESTORE & ~0x18) | 0x1, 0x58024400, "Memory"); // RCC_CR HSIDIV=0, HSION=1
+    rcc_changed++;
+  }
+
+  if ((RCC_CFGR_RESTORE & 0x3F) != 0x0)
+  {
+    __writeMemory32((RCC_CFGR_RESTORE & ~0x3F), 0x58024410, "Memory"); // RCC_CFGR
+    rcc_changed++;
+  }
+
+  if ((RCC_D1CFGR_RESTORE & 0xF0F) != 0x0)
+  {
+    __writeMemory32((RCC_D1CFGR_RESTORE & ~0xF0F), 0x58024418, "Memory"); // RCC_D1CFGR D1CPRE=0, HPRE=0
+    rcc_changed++;
+  }
+
+  if (rcc_changed)
+  {
+    __message "FL/MAC: RCC was reconfigured.";
+  }
+
+  // Setup Flash signal delay and read latency
+  FLASH_ACR_RESTORE = __readMemory32(0x52002000, "Memory");
+  if (FLASH_ACR_RESTORE != 0x12)
+  {
+    __writeMemory32(0x12, 0x52002000, "Memory");
+  }
+
+  // Check if hardware IWDG is enabled
+  if (!(0x10 & __readMemory32(0x5200201C, "Memory")))
+  {
+    __message "FL/MAC: Configuring IWDG.";
+
+    // Set IWDG timeout to the max possible
+    IWDG_PR_RESTORE  = __readMemory32(0x58004804, "Memory");
+    IWDG_RLR_RESTORE = __readMemory32(0x58004808, "Memory");
+    IWDG_WINR_RESTORE = __readMemory32(0x58004810, "Memory");
+    // Unlock WDT registers
+    __writeMemory32(0x5555, 0x58004800, "Memory");
+    // Prescaler
+    if (IWDG_PR_RESTORE != 0x7)
+    {
+      __writeMemory32(0x7, 0x58004804, "Memory");
+    }
+    // Reload
+    if (IWDG_RLR_RESTORE != 0xFFF)
+    {
+      __writeMemory32(0xFFF, 0x58004808, "Memory");
+    }
+    // Window
+    if (IWDG_WINR_RESTORE != 0xFFF)
+    {
+      // Writing the Window will automatically refresh counter
+      // to Reload value
+      __writeMemory32(0xFFF, 0x58004810, "Memory");
+    }
+    else
+    {
+      // Refresh counter to Reload value
+      __writeMemory32(0xAAAA, 0x58004800, "Memory");
+    }
+  }
+}
+
+disable_wdts_in_debug()
+{
+  //__message "FL/MAC: Configuring in-debug mode settings for all watchdogs.";
+
+  DBGMCU_APB3FZ1_RESTORE = __readMemory32(0xE00E1034, "AP2_Memory");
+  DBGMCU_APB4FZ1_RESTORE = __readMemory32(0xE00E1054, "AP2_Memory");
+  if (!(DBGMCU_APB3FZ1_RESTORE & 0x40) != 0x40)
+  {
+    // Set DBGMCU_APB3FZ1.DBG_WWDG
+    __writeMemory32(DBGMCU_APB3FZ1_RESTORE | 0x40, 0xE00E1034, "AP2_Memory");
+  }
+  if ((DBGMCU_APB4FZ1_RESTORE & 0x40000) != 0x40000)
+  {
+    // Set DBGMCU_APB4FZ1.DBG_IWDG
+    __writeMemory32(DBGMCU_APB4FZ1_RESTORE | 0x40000, 0xE00E1054, "AP2_Memory");
+  }
+}
+
+restore_wdts_in_debug()
+{
+  //__message "FL/MAC: Restoring in-debug mode settings for all watchdogs.";
+
+  if (!(DBGMCU_APB3FZ1_RESTORE & 0x40) != 0x40)
+  {
+    __writeMemory32(DBGMCU_APB3FZ1_RESTORE, 0xE00E1034, "AP2_Memory");
+  }
+  if ((DBGMCU_APB4FZ1_RESTORE & 0x40000) != 0x40000)
+  {
+    __writeMemory32(DBGMCU_APB4FZ1_RESTORE, 0xE00E1054, "AP2_Memory");
+  }
+}
+
+execUserFlashExit()
+{
+  // Restore registers modified earlier
+
+  if (!(0x10 & __readMemory32(0x5200201C, "Memory")))
+  {
+    __message "FL/MAC: Restoring IWDG.";
+
+    __writeMemory32(0x5555, 0x58004800, "Memory");
+    if (IWDG_PR_RESTORE != 0x7)
+    {
+      __writeMemory32(IWDG_PR_RESTORE, 0x58004804, "Memory");
+    }
+    if (IWDG_RLR_RESTORE != 0xFFF)
+    {
+      __writeMemory32(IWDG_RLR_RESTORE, 0x58004808, "Memory");
+    }
+    if (IWDG_WINR_RESTORE != 0xFFF)
+    {
+      __writeMemory32(IWDG_WINR_RESTORE, 0x58004810, "Memory");
+    }
+    else
+    {
+      __writeMemory32(0xAAAA, 0x58004800, "Memory");
+    }
+  }
+
+  if (FLASH_ACR_RESTORE != 0x12)
+  {
+    __writeMemory32(FLASH_ACR_RESTORE, 0x52002000, "Memory");
+  }
+
+__var rcc_changed;
+
+  if ((RCC_D1CFGR_RESTORE & 0xF0F) != 0x0)
+  {
+    __writeMemory32(RCC_D1CFGR_RESTORE, 0x58024418, "Memory");
+    rcc_changed++;
+  }
+
+  if ((RCC_CFGR_RESTORE & 0x3F) != 0x0)
+  {
+    __writeMemory32(RCC_CFGR_RESTORE, 0x58024410, "Memory");
+    rcc_changed++;
+  }
+
+  if ((RCC_CR_RESTORE & 0x19) != 0x1)
+  {
+    __writeMemory32(RCC_CR_RESTORE, 0x58024400, "Memory");
+    rcc_changed++;
+  }
+
+  if (RCC_CIER_RESTORE != 0x0)
+  {
+    __writeMemory32(RCC_CIER_RESTORE, 0x58024460, "Memory");
+    rcc_changed++;
+  }
+
+  if (rcc_changed)
+  {
+    __message "FL/MAC: RCC was restored.";
+  }
+
+  if (MPU_CTRL_RESTORE & 0x1)
+  {
+    __writeMemory32(MPU_CTRL_RESTORE, 0xE000ED94, "Memory");
+  }
+
+  restore_wdts_in_debug();
+}

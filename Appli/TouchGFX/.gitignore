@@ -1,0 +1,6 @@
+/build/
+/generated/fonts/cache/
+/generated/texts/cache/
+/generated/videos/obj/
+/generated/videos/bin/
+/simulator/msvs/.vs

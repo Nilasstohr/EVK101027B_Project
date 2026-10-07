@@ -1,0 +1,117 @@
+PROBLEM AND FIX: gcc/makefile_appli
+=====================================
+
+TITLE
+-----
+Parallel build (-j8) fails with "No such file" for generated font files when
+texts.xml is newer than TextKeysAndLanguages.hpp.
+
+
+SYMPTOM
+-------
+"Program and Run Target" in TouchGFX Designer fails in the Compile step:
+
+  make[3]: *** No rule to make target '.../generated/fonts/src/CompressedFontCache.cpp'
+  cc1plus.exe: fatal error: .../Font_verdana_40_4bpp_0.cpp: No such file or directory
+
+Building in STM32CubeIDE works, because STM32CubeIDE does not use
+gcc/makefile_appli (it uses its own makefiles in STM32CubeIDE/Appli/Debug).
+
+
+WHO USES gcc/makefile_appli
+---------------------------
+Only TouchGFX Designer. The commands in EVK101027B_Project.touchgfx
+(CompileTargetCommandOverride, FlashTargetCommandOverride, ...) run
+"make -f ../../gcc/Makefile", and gcc/Makefile calls makefile_boot and then
+makefile_appli.
+
+
+CAUSE
+-----
+1. texts.xml is saved. TextKeysAndLanguages.hpp is now older than texts.xml.
+
+2. The rule for TextKeysAndLanguages.hpp deletes generated/fonts/src/* and runs
+   ruby (TouchGFX text converter) to regenerate the files.
+   The first make runs this rule correctly.
+
+3. ruby does not rewrite TextKeysAndLanguages.hpp when the content is unchanged.
+   TextKeysAndLanguages.hpp therefore stays older than texts.xml.
+
+4. The recipe of generate_assets starts a second make (build_executable).
+   The second make loads the compiler's .d files with
+   "-include $(dependency_files)". Some .d files (for example
+   Screen1ViewBase.d) list TextKeysAndLanguages.hpp as a prerequisite.
+
+5. The second make sees TextKeysAndLanguages.hpp as out of date and runs the
+   same delete-and-regenerate rule a second time.
+
+6. With -j8 (given by Designer), the rule runs at the same time as the font
+   compile jobs. The font .o files do not depend on TextKeysAndLanguages.hpp, so
+   make does not make them wait. The rule deletes the font .cpp files while the
+   compiler reads them.
+
+In short: a rule with a destructive side effect (deleting fonts) uses a header
+file as target, the target is never refreshed, and the rule runs again, in
+parallel with the compile.
+
+How this was confirmed: an echo line added to the rule printed twice. The
+second print appeared after the first "Compiling" line.
+
+
+FIX
+---
+Move the generation commands to a separate stamp file, and make the real header
+an empty rule.
+
+Replace this line:
+
+  _assets_: BitmapDatabase $(asset_texts_output)/include/texts/TextKeysAndLanguages.hpp Videos
+
+with:
+
+  _assets_: BitmapDatabase $(asset_fonts_output)/.stamp Videos
+
+Replace the old rule for TextKeysAndLanguages.hpp with (recipe lines start
+with a TAB, not spaces):
+
+  $(asset_fonts_output)/.stamp: $(text_database) Appli/TouchGFX/config/gcc/app.mk $(textconvert_executable) $(fontconvert_executable) $(fontconvert_font_files)
+  <TAB>@rm -f $(asset_fonts_output)/src/*
+  <TAB>@rm -f $(asset_fonts_output)/include/fonts/*
+  <TAB>@rm -f $(asset_fonts_output)/UnicodeList*.txt
+  <TAB>@rm -f $(asset_fonts_output)/CharSizes*.csv
+  <TAB>@mkdir -p $(asset_fonts_output) $(asset_texts_output)/include/texts
+  <TAB>@ruby $(textconvert_script_path)/main.rb $(text_database) $(fontconvert_executable) $(asset_fonts_output) $(asset_texts_output) $(asset_fonts_input) TouchGFX $(remap_identical_texts) $(text_data_format)
+  <TAB>@touch $@
+
+  $(asset_texts_output)/include/texts/TextKeysAndLanguages.hpp:
+
+Why this works:
+- The commands run only when texts.xml, app.mk or a font file changes.
+  "touch $@" makes .stamp newer than all prerequisites after every run, so the
+  second make finds nothing to do.
+- The .d files still name TextKeysAndLanguages.hpp, but the empty rule gives
+  make no commands to run for that file.
+
+
+VERIFICATION
+------------
+Two runs of "make -f makefile_appli -j8 all" from the gcc folder:
+- Run 1: fonts regenerated, linked, exit code 0, no errors.
+- Run 2: nothing regenerated, nothing compiled, exit code 0.
+Not yet confirmed from Designer's "Program and Run Target".
+
+
+WORKAROUND WITHOUT A MAKEFILE CHANGE
+------------------------------------
+Set the timestamp of TextKeysAndLanguages.hpp to now before building:
+
+  (Get-Item Appli\TouchGFX\generated\texts\include\texts\TextKeysAndLanguages.hpp).LastWriteTime = Get-Date
+
+
+NOTES
+-----
+- gcc/makefile_appli.bak is the original file before any change.
+- Debug lines may still be in generate_assets (HELLO echo, "Waiting for
+  generated fonts" echo). These are harmless and can be removed.
+- Terms: "target" = the name before the colon in a rule, "prerequisites" = the
+  names after the colon, "recipe" = the indented command lines.
