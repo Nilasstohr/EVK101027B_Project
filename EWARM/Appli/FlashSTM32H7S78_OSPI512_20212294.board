@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<flash_board>
+  <pass>
+   <loader>$PROJ_DIR$\FlashSTM32H7R-Sxx8.flash</loader>
+    <range>CODE 0x08000000 0x0800FFFF</range>
+	<loader_offset> 0x20000000</loader_offset>
+      </pass>
+  
+  <pass>
+    <loader>$PROJ_DIR$\FlashSTM32H7S78_OSPI512_20212294.flash</loader>
+    <range>CODE 0x70000000 0x73FFFFFF</range>
+  </pass>
+</flash_board>
