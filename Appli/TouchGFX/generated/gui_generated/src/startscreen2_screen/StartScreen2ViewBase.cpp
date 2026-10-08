@@ -5,7 +5,8 @@
 #include <touchgfx/Color.hpp>
 #include <texts/TextKeysAndLanguages.hpp>
 
-StartScreen2ViewBase::StartScreen2ViewBase()
+StartScreen2ViewBase::StartScreen2ViewBase() :
+    flexButtonCallback(this, &StartScreen2ViewBase::flexButtonCallbackHandler)
 {
     __background.setPosition(0, 0, 1280, 800);
     __background.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
@@ -20,6 +21,26 @@ StartScreen2ViewBase::StartScreen2ViewBase()
     textArea1.setLinespacing(0);
     textArea1.setTypedText(touchgfx::TypedText(T___SINGLEUSE_ZPEB));
     add(textArea1);
+
+    box2.setPosition(435, 265, 411, 50);
+    box2.setColor(touchgfx::Color::getColorFromRGB(240, 233, 233));
+    add(box2);
+
+    textArea2.setXY(447, 278);
+    textArea2.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
+    textArea2.setLinespacing(0);
+    textArea2.setWildcard(touchgfx::TypedText(T___SINGLEUSE_ZVLS).getText());
+    textArea2.resizeToCurrentText();
+    textArea2.setTypedText(touchgfx::TypedText(T___SINGLEUSE_YIMH));
+    add(textArea2);
+
+    EnableKeyBoardButton.setBoxWithBorderPosition(0, 0, 411, 50);
+    EnableKeyBoardButton.setBorderSize(5);
+    EnableKeyBoardButton.setBoxWithBorderColors(touchgfx::Color::getColorFromRGB(0, 102, 153), touchgfx::Color::getColorFromRGB(0, 153, 204), touchgfx::Color::getColorFromRGB(0, 51, 102), touchgfx::Color::getColorFromRGB(51, 102, 153));
+    EnableKeyBoardButton.setAlpha(0);
+    EnableKeyBoardButton.setAction(flexButtonCallback);
+    EnableKeyBoardButton.setPosition(435, 265, 411, 50);
+    add(EnableKeyBoardButton);
 }
 
 StartScreen2ViewBase::~StartScreen2ViewBase()
@@ -30,4 +51,15 @@ StartScreen2ViewBase::~StartScreen2ViewBase()
 void StartScreen2ViewBase::setupScreen()
 {
 
+}
+
+void StartScreen2ViewBase::flexButtonCallbackHandler(const touchgfx::AbstractButtonContainer& src)
+{
+    if (&src == &EnableKeyBoardButton)
+    {
+        //Interaction1
+        //When EnableKeyBoardButton clicked call virtual function
+        //Call EnableKeyBoardClicked
+        EnableKeyBoardClicked();
+    }
 }

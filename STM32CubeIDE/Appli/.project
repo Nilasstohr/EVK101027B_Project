@@ -256,6 +256,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Board/SE21229/Config/edt_board_config.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/Vendor/edt_app_funTest.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/edt_app_funTest.c</locationURI>
+		</link>
+		<link>
 			<name>Drivers/Vendor/edt_bsp_backlight.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/edt_bsp_backlight.c</locationURI>

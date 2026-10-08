@@ -21,7 +21,7 @@
             "X": 27,
             "Y": 745,
             "Width": 40,
-            "Height": 20,
+            "Height": 24,
             "TextId": "__SingleUse_ZPEB",
             "TextRotation": "0",
             "Color": {
@@ -30,9 +30,86 @@
               "Blue": 164
             },
             "AutoSize": true
+          },
+          {
+            "Type": "Box",
+            "Name": "box2",
+            "X": 435,
+            "Y": 265,
+            "Width": 411,
+            "Height": 50,
+            "Color": {
+              "Red": 240,
+              "Green": 233,
+              "Blue": 233
+            }
+          },
+          {
+            "Type": "TextArea",
+            "Name": "textArea2",
+            "X": 447,
+            "Y": 278,
+            "Width": 181,
+            "Height": 24,
+            "TextId": "__SingleUse_YIMH",
+            "TextRotation": "0",
+            "AutoSize": true,
+            "Wildcard1": {
+              "TextId": "__SingleUse_ZVLS"
+            }
+          },
+          {
+            "Type": "FlexButton",
+            "Name": "EnableKeyBoardButton",
+            "X": 435,
+            "Y": 265,
+            "Width": 411,
+            "Height": 50,
+            "Alpha": 0,
+            "ButtonTrigger": {
+              "Type": "ClickButtonTrigger"
+            },
+            "ButtonStyles": [
+              {
+                "Type": "BoxWithBorderButtonStyle",
+                "Width": 411,
+                "Height": 50,
+                "LockToFlexButtonSize": true,
+                "BorderSize": 5,
+                "ColorReleased": {
+                  "Green": 102,
+                  "Blue": 153
+                },
+                "ColorPressed": {
+                  "Green": 153,
+                  "Blue": 204
+                },
+                "ColorBorderReleased": {
+                  "Green": 51,
+                  "Blue": 102
+                },
+                "ColorBorderPressed": {
+                  "Red": 51,
+                  "Green": 102,
+                  "Blue": 153
+                }
+              }
+            ]
           }
         ],
-        "Interactions": []
+        "Interactions": [
+          {
+            "InteractionName": "Interaction1",
+            "Trigger": {
+              "Type": "TriggerClicked",
+              "TriggerComponent": "EnableKeyBoardButton"
+            },
+            "Action": {
+              "Type": "ActionCustom",
+              "FunctionName": "EnableKeyBoardClicked"
+            }
+          }
+        ]
       }
     ],
     "CustomContainerDefinitions": [],

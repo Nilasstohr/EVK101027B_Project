@@ -14,3 +14,9 @@ void StartScreen2View::tearDownScreen()
 {
     StartScreen2ViewBase::tearDownScreen();
 }
+
+void StartScreen2View::EnableKeyBoardClicked()
+{
+	presenter->transmitCDCData("EnableKeyBoardClicked");
+
+}

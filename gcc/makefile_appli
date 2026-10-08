@@ -271,6 +271,7 @@ board_c_files += \
 	$(Drivers_path)/Vendor/Driver/edt_bsp_io.c \
 	$(Drivers_path)/Vendor/Driver/edt_bsp_lcd.c \
 	$(Drivers_path)/Vendor/Driver/edt_bsp_uart.c \
+	$(Drivers_path)/Vendor/Driver/edt_app_funTest.c \
     $(Drivers_path)/Vendor/DEVICE/ctp/ILI2511v6.c \
 	$(Drivers_path)/Vendor/DEVICE/eeprom/AT24MAC402.c \
 	$(Drivers_path)/Vendor/Board/SE21229/Config/edt_board_config.c

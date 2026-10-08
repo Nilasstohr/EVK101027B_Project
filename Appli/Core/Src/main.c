@@ -33,7 +33,6 @@
 #include "ltdc.h"
 #include "lwip.h"
 #include "usart.h"
-#include "usb_device.h"
 #include "gpio.h"
 #include "app_touchgfx.h"
 

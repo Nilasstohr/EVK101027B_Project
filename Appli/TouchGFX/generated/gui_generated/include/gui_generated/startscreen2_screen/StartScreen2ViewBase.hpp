@@ -9,6 +9,8 @@
 #include <gui/startscreen2_screen/StartScreen2Presenter.hpp>
 #include <touchgfx/widgets/Box.hpp>
 #include <touchgfx/widgets/TextArea.hpp>
+#include <touchgfx/widgets/TextAreaWithWildcard.hpp>
+#include <touchgfx/containers/buttons/Buttons.hpp>
 
 class StartScreen2ViewBase : public touchgfx::View<StartScreen2Presenter>
 {
@@ -16,6 +18,14 @@ public:
     StartScreen2ViewBase();
     virtual ~StartScreen2ViewBase();
     virtual void setupScreen();
+
+    /*
+     * Virtual Action Handlers
+     */
+    virtual void EnableKeyBoardClicked()
+    {
+        // Override and implement this function in StartScreen2
+    }
 
 protected:
     FrontendApplication& application() {
@@ -28,8 +38,21 @@ protected:
     touchgfx::Box __background;
     touchgfx::Box box1;
     touchgfx::TextArea textArea1;
+    touchgfx::Box box2;
+    touchgfx::TextAreaWithOneWildcard textArea2;
+    touchgfx::BoxWithBorderButtonStyle< touchgfx::ClickButtonTrigger >  EnableKeyBoardButton;
 
 private:
+
+    /*
+     * Callback Declarations
+     */
+    touchgfx::Callback<StartScreen2ViewBase, const touchgfx::AbstractButtonContainer&> flexButtonCallback;
+
+    /*
+     * Callback Handler Declarations
+     */
+    void flexButtonCallbackHandler(const touchgfx::AbstractButtonContainer& src);
 
 };
 

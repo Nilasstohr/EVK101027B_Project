@@ -32,7 +32,7 @@
 #endif /* __ICCARM__ */
 #include "usb_device.h"
 #include "usbd_cdc_if.h"
-
+#include "edt_app_funTest.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -52,7 +52,17 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
+osThreadId_t TestTaskHandle;
+const osThreadAttr_t TestTask_attributes = {
+  .name = "TestTask",
+  .priority = (osPriority_t) osPriorityNormal,
+  .stack_size = 512 * 4
+};
 
+osMessageQueueId_t QfunRxHandle;
+const osMessageQueueAttr_t QfunRx_attributes = {
+  .name = "QfunRx"
+};
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
@@ -93,7 +103,6 @@ const osThreadAttr_t Start_attributes = {
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
 extern portBASE_TYPE IdleTaskHook(void* p);
-extern void MX_USB_DEVICE_Init(void);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void *argument);
@@ -147,6 +156,7 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
+  QfunRxHandle = osMessageQueueNew (32, sizeof(CommandData_t), &QfunRx_attributes);
 
   /* USER CODE END RTOS_QUEUES */
 
@@ -167,6 +177,7 @@ void MX_FREERTOS_Init(void) {
   StartHandle = osThreadNew(StartThread, NULL, &Start_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
+  TestTaskHandle = osThreadNew(StartFunTest, NULL, &TestTask_attributes);
 
   /* USER CODE END RTOS_THREADS */
 

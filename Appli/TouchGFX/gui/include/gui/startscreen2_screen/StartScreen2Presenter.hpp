@@ -27,6 +27,8 @@ public:
 
     virtual ~StartScreen2Presenter() {}
 
+    void transmitCDCData(const char* data);
+
 private:
     StartScreen2Presenter();
 
