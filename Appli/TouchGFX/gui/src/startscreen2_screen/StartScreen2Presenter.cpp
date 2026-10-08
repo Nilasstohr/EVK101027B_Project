@@ -12,7 +12,18 @@ void StartScreen2Presenter::activate()
 
 }
 
+void StartScreen2Presenter::notifyUsbDataReceived(const char* data)
+{
+	view.setReceivedUSBData(data);
+}
+
 void StartScreen2Presenter::deactivate()
 {
 
+}
+
+void StartScreen2Presenter::transmitCDCData(const char* data)
+{
+	model->sendCDCData(data);
+    
 }

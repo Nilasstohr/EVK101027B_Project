@@ -5,7 +5,8 @@
 #include <touchgfx/Color.hpp>
 #include <texts/TextKeysAndLanguages.hpp>
 
-StartScreen2ViewBase::StartScreen2ViewBase()
+StartScreen2ViewBase::StartScreen2ViewBase() :
+    flexButtonCallback(this, &StartScreen2ViewBase::flexButtonCallbackHandler)
 {
     __background.setPosition(0, 0, 1280, 800);
     __background.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
@@ -15,11 +16,50 @@ StartScreen2ViewBase::StartScreen2ViewBase()
     box1.setColor(touchgfx::Color::getColorFromRGB(255, 255, 255));
     add(box1);
 
-    textArea1.setXY(27, 745);
+    textArea1.setXY(6, 771);
     textArea1.setColor(touchgfx::Color::getColorFromRGB(224, 164, 164));
     textArea1.setLinespacing(0);
     textArea1.setTypedText(touchgfx::TypedText(T___SINGLEUSE_ZPEB));
     add(textArea1);
+
+    box2.setPosition(435, 261, 411, 54);
+    box2.setColor(touchgfx::Color::getColorFromRGB(240, 233, 233));
+    add(box2);
+
+    textArea2.setXY(447, 278);
+    textArea2.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
+    textArea2.setLinespacing(0);
+    textArea2.setWildcard(touchgfx::TypedText(T___SINGLEUSE_ZVLS).getText());
+    textArea2.resizeToCurrentText();
+    textArea2.setTypedText(touchgfx::TypedText(T___SINGLEUSE_YIMH));
+    add(textArea2);
+
+    EnableKeyBoardButton.setBoxWithBorderPosition(0, 0, 411, 50);
+    EnableKeyBoardButton.setBorderSize(5);
+    EnableKeyBoardButton.setBoxWithBorderColors(touchgfx::Color::getColorFromRGB(0, 102, 153), touchgfx::Color::getColorFromRGB(0, 153, 204), touchgfx::Color::getColorFromRGB(0, 51, 102), touchgfx::Color::getColorFromRGB(51, 102, 153));
+    EnableKeyBoardButton.setAlpha(0);
+    EnableKeyBoardButton.setAction(flexButtonCallback);
+    EnableKeyBoardButton.setPosition(435, 263, 411, 50);
+    add(EnableKeyBoardButton);
+
+    box3.setPosition(435, 186, 411, 50);
+    box3.setColor(touchgfx::Color::getColorFromRGB(240, 228, 228));
+    add(box3);
+
+    textAreaUSBReceive.setXY(447, 199);
+    textAreaUSBReceive.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
+    textAreaUSBReceive.setLinespacing(0);
+    Unicode::snprintf(textAreaUSBReceiveBuffer, TEXTAREAUSBRECEIVE_SIZE, "%s", touchgfx::TypedText(T___SINGLEUSE_T2QD).getText());
+    textAreaUSBReceive.setWildcard(textAreaUSBReceiveBuffer);
+    textAreaUSBReceive.resizeToCurrentText();
+    textAreaUSBReceive.setTypedText(touchgfx::TypedText(T___SINGLEUSE_0TB3));
+    add(textAreaUSBReceive);
+
+    textArea3.setXY(435, 162);
+    textArea3.setColor(touchgfx::Color::getColorFromRGB(0, 0, 0));
+    textArea3.setLinespacing(0);
+    textArea3.setTypedText(touchgfx::TypedText(T___SINGLEUSE_DNC6));
+    add(textArea3);
 }
 
 StartScreen2ViewBase::~StartScreen2ViewBase()
@@ -30,4 +70,15 @@ StartScreen2ViewBase::~StartScreen2ViewBase()
 void StartScreen2ViewBase::setupScreen()
 {
 
+}
+
+void StartScreen2ViewBase::flexButtonCallbackHandler(const touchgfx::AbstractButtonContainer& src)
+{
+    if (&src == &EnableKeyBoardButton)
+    {
+        //Interaction1
+        //When EnableKeyBoardButton clicked call virtual function
+        //Call EnableKeyBoardClicked
+        EnableKeyBoardClicked();
+    }
 }

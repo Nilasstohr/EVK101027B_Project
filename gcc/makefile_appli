@@ -262,6 +262,7 @@ cmsis_include_paths += \
 video_files := $(call find, $(assets_videos_input),*.avi)
 
 # Drivers/EDT Vendor
+board_cpp_files += $(Drivers_path)/Vendor/Driver/edt_app_funTest.cpp
 board_c_files += \
     $(Drivers_path)/Vendor/Driver/edt_bsp_backlight.c \
 	$(Drivers_path)/Vendor/Driver/edt_bsp_can.c \

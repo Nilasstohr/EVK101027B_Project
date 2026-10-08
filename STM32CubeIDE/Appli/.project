@@ -256,6 +256,16 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Board/SE21229/Config/edt_board_config.c</locationURI>
 		</link>
 		<link>
+			<name>Drivers/Vendor/edt_app_funTest.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/edt_app_funTest.cpp</locationURI>
+		</link>
+		<link>
+			<name>Drivers/Vendor/edt_app_funTest.h</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/edt_app_funTest.h</locationURI>
+		</link>
+		<link>
 			<name>Drivers/Vendor/edt_bsp_backlight.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/edt_bsp_backlight.c</locationURI>
@@ -289,6 +299,11 @@
 			<name>Drivers/Vendor/edt_bsp_uart.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/edt_bsp_uart.c</locationURI>
+		</link>
+		<link>
+			<name>Drivers/Vendor/Sample</name>
+			<type>2</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Drivers/Vendor/Driver/Sample</locationURI>
 		</link>
 		<link>
 			<name>Drivers/Vendor/se21229_sys_conf.h</name>
