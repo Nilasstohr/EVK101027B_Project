@@ -23,9 +23,16 @@ public:
      * The deactivate function is called automatically when this screen is "switched out"
      * (ie. made inactive). Teardown functionality can be placed here.
      */
+     // Virtual method for flash data received notification
+
+    virtual void notifyUsbDataReceived(const char* data);
+
     virtual void deactivate();
 
     virtual ~StartScreen2Presenter() {}
+
+    void transmitCDCData(const char* data);
+
 
 private:
     StartScreen2Presenter();

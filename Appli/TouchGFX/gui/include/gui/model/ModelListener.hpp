@@ -9,6 +9,7 @@ public:
     ModelListener() : model(0) {}
     
     virtual ~ModelListener() {}
+    virtual void notifyUsbDataReceived(const char* data) {}
 
     void bind(Model* m)
     {

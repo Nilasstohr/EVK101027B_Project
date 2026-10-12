@@ -10,5 +10,11 @@ KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE;
 // Remap all strings
 TEXT_LOCATION_FLASH_PRAGMA
 KEEP extern const uint32_t indicesGb[] TEXT_LOCATION_FLASH_ATTRIBUTE = {
-    0 // T___SINGLEUSE_ZPEB: "EDT"
+    0,  // T___SINGLEUSE_DNC6: "Received USB data"
+    17, // T___SINGLEUSE_T2QD: ""
+    18, // T_RESOURCEID1: "New Text"
+    27, // T___SINGLEUSE_0TB3: "<>"
+    17, // T___SINGLEUSE_ZVLS: ""
+    27, // T___SINGLEUSE_YIMH: "<>"
+    29  // T___SINGLEUSE_ZPEB: "EDT"
 };
